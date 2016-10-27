@@ -1,3 +1,4 @@
+
 import os
 import re
 import requests
@@ -17,9 +18,12 @@ i = 0
 os.makedirs('pic')
 
 for url in pic_url:
-    print 'now downloading...' + url
-    pic = requests.get(url)
+    largeImg_url = url.replace('thumb','large')
+    print 'now downloading...' + largeImg_url
+    pic = requests.get(largeImg_url)
     fp = open(os.getcwd() + '/pic/' + str(i) + '.jpg','wb')
     fp.write(pic.content)
     fp.close()
     i += 1
+    if i == pic_url.__len__():
+        print '##donwload completed!##'
