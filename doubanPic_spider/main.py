@@ -8,9 +8,8 @@ from bs4 import BeautifulSoup
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-
 index = 0
-first_url = "https://www.douban.com/photos/album/153337648/"
+first_url = raw_input('请输入豆瓣相册地址:')
 first_html = urllib2.urlopen(first_url).read()
 #match pics
 first_images = re.findall('"photolst clearfix">(.*?)<div id="link-report',first_html,re.S)[0]
@@ -40,7 +39,7 @@ if not os.path.exists('pic'):
             os.makedirs('pic')
 
         for url in pic_url:
-            largeImg_url = url.replace('thumb', 'thumb')
+            largeImg_url = url.replace('thumb', 'large')
             print '下载中...' + str(j) + '-' + str(i)
             pic = requests.get(largeImg_url)
             fp = open(os.getcwd() + '/pic/' + str(j) + '-' + str(i) + '.jpg', 'wb')
