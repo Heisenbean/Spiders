@@ -8,24 +8,46 @@ from bs4 import BeautifulSoup
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
-html = urllib2.urlopen("https://www.douban.com/photos/album/127041026").read()
 
+index = 0
+first_url = "https://www.douban.com/photos/album/153337648/"
+first_html = urllib2.urlopen(first_url).read()
 #match pics
+first_images = re.findall('"photolst clearfix">(.*?)<div id="link-report',first_html,re.S)[0]
+first_image = first_images.strip()
+imagesList = []
+while first_image != "</div>":   #no photos
+    url = first_url + '?start=' + str(index * 18)
+    html = urllib2.urlopen(url).read()
+    image = re.findall('"photolst clearfix">(.*?)<div id="link-report',html,re.S)[0]
+    first_image = image.strip()
+    pic_url = re.findall('img src="(.*?)" /',image)
+    imagesList.append(url)
+    index += 1
 
-large = re.findall('"photolst clearfix">(.*?)<div id="link-report',html,re.S)[0]
-pic_url = re.findall('img src="(.*?)" /',large)
-i = 0
-# create folder
 if not os.path.exists('pic'):
-    print '开始下载...'
-    os.makedirs('pic')
-    for url in pic_url:
-        largeImg_url = url.replace('thumb','large')
-        print '下载中...' + largeImg_url
-        pic = requests.get(largeImg_url)
-        fp = open(os.getcwd() + '/pic/' + str(i) + '.jpg','wb')
-        fp.write(pic.content)
-        fp.close()
-        i += 1
-        if i == pic_url.__len__():
-            print '##下载完毕!##'
+    j = 0
+    for url in imagesList:
+        html = urllib2.urlopen(url).read()
+        # match pics
+        large = re.findall('"photolst clearfix">(.*?)<div id="link-report', html, re.S)[0]
+        pic_url = re.findall('img src="(.*?)" /', large)
+        j+=1
+        i = 0
+        # create folder
+        if not os.path.exists('pic'):
+            print '##开始下载.共' + str(imagesList.__len__() - 1) + '页##'
+            os.makedirs('pic')
+
+        for url in pic_url:
+            largeImg_url = url.replace('thumb', 'thumb')
+            print '下载中...' + str(j) + '-' + str(i)
+            pic = requests.get(largeImg_url)
+            fp = open(os.getcwd() + '/pic/' + str(j) + '-' + str(i) + '.jpg', 'wb')
+            fp.write(pic.content)
+            fp.close()
+            i += 1
+            if i == pic_url.__len__():
+                print '##第' + str(j) + '页下载完毕!!##'
+else:
+    print '已下载过了!'
