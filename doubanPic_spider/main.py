@@ -8,20 +8,43 @@ from bs4 import BeautifulSoup
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+
+# file = open('source.html','r')
+# html = file.read()
+# file.close()
+
+# soup = BeautifulSoup(html,'html.parser',from_encoding='utf-8')
+
+
+
 index = 0
-first_url = raw_input('请输入豆瓣相册地址:')
+first_url = 'https://www.douban.com/photos/album/153337648/'
 first_html = urllib2.urlopen(first_url).read()
+
 #match pics
-first_images = re.findall('"photolst clearfix">(.*?)<div id="link-report',first_html,re.S)[0]
-first_image = first_images.strip()
+soup = BeautifulSoup(first_html,'html.parser',from_encoding='utf-8')
+# node = soup.find_all('div', {'class': 'photo_wrap'})
+# for imageUrl in node:
+#     for l in imageUrl.find_all('img'):
+#         print l.get('src')
+
+
+# first_images = re.findall('"photolst clearfix">(.*?)<div id="link-report',first_html,re.S)[0]
+# first_image = first_images.strip()
+
 imagesList = []
-while first_image != "</div>":   #no photos
+node = soup.find_all('div', {'class': 'photo_wrap'})
+
+while node:   #no photos
     url = first_url + '?start=' + str(index * 18)
     html = urllib2.urlopen(url).read()
-    image = re.findall('"photolst clearfix">(.*?)<div id="link-report',html,re.S)[0]
-    first_image = image.strip()
-    pic_url = re.findall('img src="(.*?)" /',image)
-    imagesList.append(url)
+    # image = re.findall('"photolst clearfix">(.*?)<div id="link-report',html,re.S)[0]
+    # first_image = image.strip()
+    # pic_url = re.findall('img src="(.*?)" /',image)
+    node = soup.find_all('div', {'class': 'photo_wrap'})
+    for imageUrl in node:
+        for url in imageUrl.find_all('img'):
+            imagesList.append(url)
     index += 1
 
 if not os.path.exists('pic'):
@@ -50,3 +73,5 @@ if not os.path.exists('pic'):
                 print '##第' + str(j) + '页下载完毕!!##'
 else:
     print '已下载过了!'
+
+
